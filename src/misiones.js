@@ -153,4 +153,52 @@ export function buscarPedidos(pedidos, texto) {
 
     return nombreNormalizado.includes(textoNormalizado);
   });
+  // ----------------------------------------------------------------------------
+// MISIÓN 6 · DESTACADO — Los mejores clientes
+// ----------------------------------------------------------------------------
+export function topClientes(pedidos, n) {
+  if (!Array.isArray(pedidos) || n <= 0) {
+    return [];
+  }
+
+  const acumuladoClientes = {};
+
+  // Sumamos el total de los pedidos por cada cliente reutilizando totalPedido
+  pedidos.forEach(pedido => {
+    let nombreCliente = '';
+    if (typeof pedido?.cliente === 'string') {
+      nombreCliente = pedido.cliente;
+    } else if (pedido?.cliente && typeof pedido.cliente === 'object') {
+      nombreCliente = pedido.cliente.nombre || '';
+    }
+
+    if (!nombreCliente) return;
+
+    const total = totalPedido(pedido);
+
+    if (!acumuladoClientes[nombreCliente]) {
+      acumuladoClientes[nombreCliente] = 0;
+    }
+    acumuladoClientes[nombreCliente] += total;
+  });
+
+  // Convertimos el objeto acumulador a un arreglo de objetos [{ cliente, total }]
+  const listaClientes = Object.entries(acumuladoClientes).map(([cliente, total]) => {
+    return {
+      cliente,
+      total: Math.round(total * 100) / 100
+    };
+  });
+
+  // Ordenamos: total de mayor a menor; si empatan, por nombre alfabético (A-Z)
+  listaClientes.sort((a, b) => {
+    if (b.total !== a.total) {
+      return b.total - a.total; // Mayor a menor
+    }
+    return a.cliente.localeCompare(b.cliente); // Alfabético si hay empate
+  });
+
+  // Devolvemos únicamente los primeros `n` elementos
+  return listaClientes.slice(0, n);
+
 }
