@@ -154,6 +154,7 @@ export function buscarPedidos(pedidos, texto) {
     return nombreNormalizado.includes(textoNormalizado);
   });
   // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // MISIÓN 6 · DESTACADO — Los mejores clientes
 // ----------------------------------------------------------------------------
 export function topClientes(pedidos, n) {
@@ -179,7 +180,8 @@ export function topClientes(pedidos, n) {
     if (!acumuladoClientes[nombreCliente]) {
       acumuladoClientes[nombreCliente] = 0;
     }
-    acumuladoClientes[nombreCliente] += total;
+    // Evitamos errores de precisión sumando enteros (centavos) o redondeando
+    acumuladoClientes[nombreCliente] = Math.round((acumuladoClientes[nombreCliente] + total) * 100) / 100;
   });
 
   // Convertimos el objeto acumulador a un arreglo de objetos [{ cliente, total }]
@@ -195,10 +197,9 @@ export function topClientes(pedidos, n) {
     if (b.total !== a.total) {
       return b.total - a.total; // Mayor a menor
     }
-    return a.cliente.localeCompare(b.cliente); // Alfabético si hay empate
+    return a.cliente.localeCompare(b.cliente, 'es', { sensitivity: 'base' }); // Alfabético con soporte en español
   });
 
   // Devolvemos únicamente los primeros `n` elementos
   return listaClientes.slice(0, n);
-
 }
